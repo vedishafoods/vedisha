@@ -190,6 +190,86 @@ th, td {
   font-size: 18px;
 }
 
+.form-section {
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.form-section h3 {
+  margin-top: 0;
+  color: #0A2A66;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #0A2A66;
+  font-size: 16px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Manrope', sans-serif;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #0A2A66;
+  box-shadow: 0 0 5px rgba(10, 42, 102, 0.3);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-btn {
+  background: #0A2A66;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.form-btn:hover {
+  background: #072050;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 42, 102, 0.4);
+}
+
+.success-message {
+  display: none;
+  background: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 footer {
   background: #0A2A66;
   color: white;
@@ -240,6 +320,11 @@ footer {
   
   .section {
     padding: 30px 15px;
+  }
+  
+  .form-section {
+    margin: 30px 15px;
+    padding: 20px;
   }
 }
 
@@ -306,6 +391,27 @@ footer {
   .wa-btn {
     font-size: 13px;
     padding: 8px 14px;
+  }
+  
+  .form-section {
+    padding: 20px 12px;
+    margin: 25px 12px;
+  }
+  
+  .form-group label {
+    font-size: 15px;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  
+  .form-btn {
+    font-size: 15px;
+    padding: 10px 20px;
   }
   
   footer {
@@ -398,6 +504,27 @@ footer {
     box-sizing: border-box;
   }
   
+  .form-section {
+    padding: 15px 10px;
+    margin: 20px 10px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  
+  .form-btn {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+  
   footer {
     font-size: 14px;
     padding: 12px 8px;
@@ -430,6 +557,8 @@ function openProduct(id){
 <nav>
   <a href="#about">About</a>
   <a href="#products">Products</a>
+  <a href="#inquiry">Inquiry</a>
+  <a href="#feedback">Feedback</a>
   <a href="#contact">Contact Us</a>
 </nav>
 </header>
@@ -619,6 +748,108 @@ function openProduct(id){
 <a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
+</section>
+
+<section id="inquiry" class="section">
+<div class="form-section">
+<h3>Product Inquiry Form</h3>
+<div class="success-message" id="inquirySuccess">Thank you! Your inquiry has been submitted successfully. We'll contact you soon.</div>
+<form action="https://formsubmit.co/vedprish20162021@gmail.com" method="POST">
+  <div class="form-group">
+    <label for="inquiryName">Full Name *</label>
+    <input type="text" id="inquiryName" name="name" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="inquiryEmail">Email Address *</label>
+    <input type="email" id="inquiryEmail" name="email" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="inquiryPhone">Phone Number *</label>
+    <input type="tel" id="inquiryPhone" name="phone" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="inquiryProduct">Product of Interest *</label>
+    <select id="inquiryProduct" name="product_interest" required>
+      <option value="">-- Select a Product --</option>
+      <option value="Premium Makhana">Premium Makhana</option>
+      <option value="California Almonds">California Almonds</option>
+      <option value="Handpicked Cashews">Handpicked Cashews</option>
+      <option value="Natural Dates">Natural Dates</option>
+      <option value="Premium Pistachios">Premium Pistachios</option>
+      <option value="Walnut Kernels">Walnut Kernels</option>
+      <option value="Raisins">Raisins</option>
+      <option value="Golden Raisins">Golden Raisins</option>
+      <option value="Black Raisins">Black Raisins</option>
+      <option value="Dried Figs">Dried Figs</option>
+      <option value="Dried Coconut">Dried Coconut</option>
+      <option value="Dried Mango">Dried Mango</option>
+      <option value="Pumpkin Seeds">Pumpkin Seeds</option>
+      <option value="Sunflower Seeds">Sunflower Seeds</option>
+      <option value="Chia Seeds">Chia Seeds</option>
+    </select>
+  </div>
+  
+  <div class="form-group">
+    <label for="inquiryMessage">Message *</label>
+    <textarea id="inquiryMessage" name="message" required></textarea>
+  </div>
+  
+  <input type="hidden" name="_subject" value="New Product Inquiry from Vedisha Website">
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_next" value="https://yourdomain.com">
+  
+  <button type="submit" class="form-btn">Submit Inquiry</button>
+</form>
+</div>
+</section>
+
+<section id="feedback" class="section">
+<div class="form-section">
+<h3>Feedback Form</h3>
+<div class="success-message" id="feedbackSuccess">Thank you! Your feedback has been submitted. We appreciate your input.</div>
+<form action="https://formsubmit.co/vedprish20162021@gmail.com" method="POST">
+  <div class="form-group">
+    <label for="feedbackName">Full Name *</label>
+    <input type="text" id="feedbackName" name="name" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="feedbackEmail">Email Address *</label>
+    <input type="email" id="feedbackEmail" name="email" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="feedbackPhone">Mobile Number *</label>
+    <input type="tel" id="feedbackPhone" name="mobile_number" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="feedbackRating">Rating *</label>
+    <select id="feedbackRating" name="rating" required>
+      <option value="">-- Select Rating --</option>
+      <option value="Excellent">Excellent</option>
+      <option value="Very Good">Very Good</option>
+      <option value="Good">Good</option>
+      <option value="Average">Average</option>
+      <option value="Poor">Poor</option>
+    </select>
+  </div>
+  
+  <div class="form-group">
+    <label for="feedbackMessage">Your Feedback *</label>
+    <textarea id="feedbackMessage" name="feedback_message" required></textarea>
+  </div>
+  
+  <input type="hidden" name="_subject" value="New Feedback from Vedisha Website">
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_next" value="https://yourdomain.com">
+  
+  <button type="submit" class="form-btn">Submit Feedback</button>
+</form>
+</div>
 </section>
 
 <section id="contact" class="section">
