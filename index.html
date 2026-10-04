@@ -268,6 +268,17 @@ th, td {
   border-radius: 4px;
   margin-bottom: 20px;
   text-align: center;
+  font-weight: 600;
+}
+
+.form-info {
+  background: #e7f3ff;
+  color: #0A2A66;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 4px solid #0A2A66;
 }
 
 footer {
@@ -546,6 +557,44 @@ function openProduct(id){
   });
   document.getElementById(id).classList.add('active');
 }
+
+function submitInquiryForm(event) {
+  event.preventDefault();
+  const name = document.getElementById('inquiryName').value;
+  const email = document.getElementById('inquiryEmail').value;
+  const phone = document.getElementById('inquiryPhone').value;
+  const product = document.getElementById('inquiryProduct').value;
+  const message = document.getElementById('inquiryMessage').value;
+  
+  const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
+  
+  window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+  
+  document.getElementById('inquiryForm').reset();
+  document.getElementById('inquirySuccess').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('inquirySuccess').style.display = 'none';
+  }, 3000);
+}
+
+function submitFeedbackForm(event) {
+  event.preventDefault();
+  const name = document.getElementById('feedbackName').value;
+  const email = document.getElementById('feedbackEmail').value;
+  const mobile = document.getElementById('feedbackPhone').value;
+  const rating = document.getElementById('feedbackRating').value;
+  const feedback = document.getElementById('feedbackMessage').value;
+  
+  const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
+  
+  window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+  
+  document.getElementById('feedbackForm').reset();
+  document.getElementById('feedbackSuccess').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('feedbackSuccess').style.display = 'none';
+  }, 3000);
+}
 </script>
 </head>
 
@@ -753,8 +802,9 @@ function openProduct(id){
 <section id="inquiry" class="section">
 <div class="form-section">
 <h3>Product Inquiry Form</h3>
-<div class="success-message" id="inquirySuccess">Thank you! Your inquiry has been submitted successfully. We'll contact you soon.</div>
-<form action="https://formsubmit.co/vedprish20162021@gmail.com" method="POST">
+<div class="form-info">💬 Your inquiry will be sent directly to WhatsApp. Fill the form and click Submit to start chatting with us!</div>
+<div class="success-message" id="inquirySuccess">✓ Form submitted! Opening WhatsApp...</div>
+<form id="inquiryForm" onsubmit="submitInquiryForm(event)">
   <div class="form-group">
     <label for="inquiryName">Full Name *</label>
     <input type="text" id="inquiryName" name="name" required>
@@ -797,10 +847,6 @@ function openProduct(id){
     <textarea id="inquiryMessage" name="message" required></textarea>
   </div>
   
-  <input type="hidden" name="_subject" value="New Product Inquiry from Vedisha Website">
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_next" value="https://yourdomain.com">
-  
   <button type="submit" class="form-btn">Submit Inquiry</button>
 </form>
 </div>
@@ -809,8 +855,9 @@ function openProduct(id){
 <section id="feedback" class="section">
 <div class="form-section">
 <h3>Feedback Form</h3>
-<div class="success-message" id="feedbackSuccess">Thank you! Your feedback has been submitted. We appreciate your input.</div>
-<form action="https://formsubmit.co/vedprish20162021@gmail.com" method="POST">
+<div class="form-info">💬 Share your valuable feedback directly on WhatsApp. Fill the form and click Submit!</div>
+<div class="success-message" id="feedbackSuccess">✓ Feedback submitted! Opening WhatsApp...</div>
+<form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
   <div class="form-group">
     <label for="feedbackName">Full Name *</label>
     <input type="text" id="feedbackName" name="name" required>
@@ -842,10 +889,6 @@ function openProduct(id){
     <label for="feedbackMessage">Your Feedback *</label>
     <textarea id="feedbackMessage" name="feedback_message" required></textarea>
   </div>
-  
-  <input type="hidden" name="_subject" value="New Feedback from Vedisha Website">
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_next" value="https://yourdomain.com">
   
   <button type="submit" class="form-btn">Submit Feedback</button>
 </form>
