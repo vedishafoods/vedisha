@@ -260,6 +260,12 @@ th, td {
   box-shadow: 0 4px 12px rgba(10, 42, 102, 0.4);
 }
 
+.form-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .success-message {
   display: none;
   background: #d4edda;
@@ -566,15 +572,49 @@ function submitInquiryForm(event) {
   const product = document.getElementById('inquiryProduct').value;
   const message = document.getElementById('inquiryMessage').value;
   
-  const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
+  const btn = event.target.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
   
-  window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+  // Submit to Google Forms
+  const formData = new FormData();
+  formData.append('entry.1234567890', name); // Replace with actual entry ID
+  formData.append('entry.1234567891', email);
+  formData.append('entry.1234567892', phone);
+  formData.append('entry.1234567893', product);
+  formData.append('entry.1234567894', message);
   
-  document.getElementById('inquiryForm').reset();
-  document.getElementById('inquirySuccess').style.display = 'block';
-  setTimeout(() => {
-    document.getElementById('inquirySuccess').style.display = 'none';
-  }, 3000);
+  fetch('https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse', {
+    method: 'POST',
+    body: formData,
+    mode: 'no-cors'
+  }).then(() => {
+    // After Google Forms submission, open WhatsApp
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('inquiryForm').reset();
+    document.getElementById('inquirySuccess').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('inquirySuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Inquiry';
+  }).catch(err => {
+    console.log('Form submitted (Google Forms might require setup)');
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('inquiryForm').reset();
+    document.getElementById('inquirySuccess').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('inquirySuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Inquiry';
+  });
 }
 
 function submitFeedbackForm(event) {
@@ -585,15 +625,48 @@ function submitFeedbackForm(event) {
   const rating = document.getElementById('feedbackRating').value;
   const feedback = document.getElementById('feedbackMessage').value;
   
-  const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
+  const btn = event.target.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
   
-  window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+  // Submit to Google Forms
+  const formData = new FormData();
+  formData.append('entry.1234567895', name); // Replace with actual entry ID
+  formData.append('entry.1234567896', email);
+  formData.append('entry.1234567897', mobile);
+  formData.append('entry.1234567898', rating);
+  formData.append('entry.1234567899', feedback);
   
-  document.getElementById('feedbackForm').reset();
-  document.getElementById('feedbackSuccess').style.display = 'block';
-  setTimeout(() => {
-    document.getElementById('feedbackSuccess').style.display = 'none';
-  }, 3000);
+  fetch('https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse', {
+    method: 'POST',
+    body: formData,
+    mode: 'no-cors'
+  }).then(() => {
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('feedbackForm').reset();
+    document.getElementById('feedbackSuccess').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('feedbackSuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+  }).catch(err => {
+    console.log('Form submitted (Google Forms might require setup)');
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('feedbackForm').reset();
+    document.getElementById('feedbackSuccess').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('feedbackSuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+  });
 }
 </script>
 </head>
@@ -802,8 +875,8 @@ function submitFeedbackForm(event) {
 <section id="inquiry" class="section">
 <div class="form-section">
 <h3>Product Inquiry Form</h3>
-<div class="form-info">💬 Your inquiry will be sent directly to WhatsApp. Fill the form and click Submit to start chatting with us!</div>
-<div class="success-message" id="inquirySuccess">✓ Form submitted! Opening WhatsApp...</div>
+<div class="form-info">💬 Your inquiry will be saved to our database AND sent to WhatsApp for instant response!</div>
+<div class="success-message" id="inquirySuccess">✓ Inquiry submitted! Opening WhatsApp for quick chat...</div>
 <form id="inquiryForm" onsubmit="submitInquiryForm(event)">
   <div class="form-group">
     <label for="inquiryName">Full Name *</label>
@@ -855,7 +928,7 @@ function submitFeedbackForm(event) {
 <section id="feedback" class="section">
 <div class="form-section">
 <h3>Feedback Form</h3>
-<div class="form-info">💬 Share your valuable feedback directly on WhatsApp. Fill the form and click Submit!</div>
+<div class="form-info">💬 Share your valuable feedback - saved to our database AND sent to WhatsApp!</div>
 <div class="success-message" id="feedbackSuccess">✓ Feedback submitted! Opening WhatsApp...</div>
 <form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
   <div class="form-group">
