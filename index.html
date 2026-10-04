@@ -555,6 +555,16 @@ footer {
   box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
 }
 
+.pay-option { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; text-align: center; }
+.pay-option h4 { margin: 0 0 10px; color: #0A2A66; }
+.pay-amount { font-size: 22px; font-weight: 700; color: #0A2A66; margin-bottom: 12px; }
+.upi-qr { width: 220px; height: 220px; max-width: 100%; }
+.upi-id { font-size: 14px; color: #666; margin: 8px 0; word-break: break-all; }
+.upi-pay-btn, .wa-pay-btn { display: inline-block; color: #fff; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; }
+.upi-pay-btn { background: #0A2A66; }
+.wa-pay-btn { background: #25d366; }
+.pay-done-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #0A2A66; color: #fff; font-weight: 600; cursor: pointer; }
+
 @media (max-width: 1180px) {
   .grid {
     grid-template-columns: repeat(4, minmax(180px, 1fr));
@@ -922,30 +932,42 @@ function openCart() {
   openModal('cartModal');
 }
 
+const UPI_ID = 'your-upi-id@bank'; // TODO: set the real merchant UPI ID
+const UPI_NAME = 'Vedisha';
+const WA_NUMBER = '919890798935';
+
 function proceedToCheckout() {
   if (cart.length === 0) {
     alert('Your cart is empty!');
     return;
   }
-  
-  let cartMessage = 'Hi Vedisha,%0A%0AI would like to order the following items:%0A%0A';
+
   let total = 0;
-  
-  cart.forEach(item => {
+  const lines = cart.map(item => {
     const itemTotal = parseFloat(item.price) * item.quantity;
     total += itemTotal;
-    cartMessage += `${item.productName} (${item.grade}): ${item.quantity}kg @ ₹${item.price}/kg = ₹${itemTotal.toFixed(2)}%0A`;
-  });
-  
-  cartMessage += `%0ATotal: ₹${total.toFixed(2)}%0A%0APlease confirm availability and provide delivery details.`;
-  
-  window.open(`https://wa.me/919890798935?text=${cartMessage}`, '_blank');
-  
-  // Clear cart after checkout
+    return `${item.productName} (${item.grade}): ${item.quantity}kg @ ₹${item.price}/kg = ₹${itemTotal.toFixed(2)}`;
+  }).join('\n');
+
+  const message = `Hi Vedisha,\n\nI would like to order the following items:\n\n${lines}\n\nTotal: ₹${total.toFixed(2)}\n\nPlease share the payment link and confirm availability and delivery details.`;
+  const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Vedisha order')}`;
+
+  document.getElementById('payAmount').textContent = `Amount due: ₹${total.toFixed(2)}`;
+  document.getElementById('upiIdText').textContent = `Pay to: ${UPI_NAME} (${UPI_ID})`;
+  document.getElementById('upiQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+  document.getElementById('upiPayLink').href = upiUrl;
+  document.getElementById('waPayLink').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
+
+  closeModal('cartModal');
+  openModal('paymentModal');
+}
+
+function completeOrder() {
   cart = [];
   saveCart();
-  closeModal('cartModal');
-  alert('Order sent to WhatsApp! Our team will contact you soon.');
+  displayCart();
+  closeModal('paymentModal');
+  alert('Thank you! Please send the payment screenshot on WhatsApp so we can confirm your order.');
 }
 
 // Pricing details: hidden by default, shown inline on the same page when a product is clicked.
@@ -989,6 +1011,10 @@ window.onclick = function(event) {
   }
   if (event.target === cartModal) {
     cartModal.style.display = 'none';
+  }
+  let paymentModal = document.getElementById('paymentModal');
+  if (event.target === paymentModal) {
+    paymentModal.style.display = 'none';
   }
 }
 
@@ -1391,7 +1417,29 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
   <div id="cartSummary" class="cart-summary">
     <div class="cart-total">Total: ₹0.00</div>
   </div>
-  <button id="checkoutBtn" class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout via WhatsApp</button>
+  <button id="checkoutBtn" class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+</div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal">
+<div class="modal-content">
+  <span class="close-modal" onclick="closeModal('paymentModal')">&times;</span>
+  <h3>Complete Your Payment</h3>
+  <div class="pay-option">
+    <h4>1. Pay by UPI</h4>
+    <div id="payAmount" class="pay-amount"></div>
+    <img id="upiQr" class="upi-qr" alt="UPI payment QR code">
+    <div id="upiIdText" class="upi-id"></div>
+    <p class="upi-id">Scan with any UPI app, or on mobile tap below.</p>
+    <a id="upiPayLink" class="upi-pay-btn" href="#">Pay with UPI app</a>
+  </div>
+  <div class="pay-option">
+    <h4>2. Or pay via WhatsApp</h4>
+    <p class="upi-id">Backup option: send your order and get a payment link.</p>
+    <a id="waPayLink" class="wa-pay-btn" href="#" target="_blank" rel="noopener noreferrer">Send order on WhatsApp</a>
+  </div>
+  <button class="pay-done-btn" onclick="completeOrder()">I have paid / Done</button>
 </div>
 </div>
 
