@@ -1,1 +1,251 @@
-Hello Vedisha
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vedisha | Premium Healthy Dry Fruit Supplier</title>
+ 
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f5f7fb;
+color:#333;
+}
+header{
+background:#fff;
+padding:20px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+header img{
+max-width:900px;
+width:90%;
+}
+nav{
+margin-top:15px;
+}
+nav a{
+text-decoration:none;
+color:#0A2A66;
+margin:0 20px;
+font-weight:bold;
+font-size:18px;
+}
+.section{
+padding:40px 20px;
+}
+h2{
+text-align:center;
+color:#0A2A66;
+}
+.about{
+max-width:1100px;
+margin:auto;
+line-height:1.8;
+text-align:justify;
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+.card{
+background:#fff;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+cursor:pointer;
+}
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+}
+.card-title{
+padding:12px;
+text-align:center;
+font-weight:bold;
+}
+.details{
+display:none;
+background:#fff;
+margin-top:15px;
+padding:20px;
+border-radius:10px;
+}
+.active{
+display:block;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+border:1px solid #ddd;
+padding:10px;
+}
+.wa-btn{
+display:inline-block;
+background:#25D366;
+color:white;
+padding:10px 18px;
+border-radius:6px;
+text-decoration:none;
+margin-top:12px;
+}
+.contact-box{
+max-width:700px;
+margin:auto;
+text-align:center;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+footer{
+background:#0A2A66;
+color:white;
+text-align:center;
+padding:20px;
+}
+.whatsapp-float{
+position:fixed;
+right:20px;
+bottom:20px;
+background:#25D366;
+color:white;
+padding:15px 20px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+}
+</style>
+ 
+<script>
+function openProduct(id){
+document.querySelectorAll('.details').forEach(x=>{
+x.classList.remove('active');
+});
+document.getElementById(id).classList.add('active');
+}
+</script>
+</head>
+ 
+<body>
+ 
+<header>
+<img src="logo.png" alt="Vedisha Logo">
+ 
+<nav>
+#aboutAbout</a>
+#productsProducts</a>
+#contactContact Us</a>
+</nav>
+</header>
+ 
+<section id="about" class="section">
+<h2>About Vedisha</h2>
+ 
+<div class="about">
+Vedisha was founded with a simple belief that quality and trust should always come first. We are dedicated to supplying premium-quality dry fruits that are carefully selected for freshness, purity, and taste. Every order is handled with care to ensure our customers receive products they can rely on with confidence. We take pride in building long-term relationships through honesty, consistency, and dependable service. Whether you are a wholesaler, retailer, distributor, or food business, our goal is to be a trusted partner in your growth and success. At Vedisha, we remain committed to delivering nature's goodness through Pure Quality, Naturally Healthy.
+</div>
+</section>
+ 
+<section id="products" class="section">
+<h2>Our Premium Product Range</h2>
+ 
+<div class="grid">
+ 
+<div class="card" onclick="openProduct('makhana')">
+<img src="makhana.jpg">
+<div class="card-title">Premium Makhana</div>
+</div>
+ 
+<div class="card" onclick="openProduct('almonds')">
+<img src="almonds.jpg">
+<div class="card-title">California Almonds</div>
+</div>
+ 
+<div class="card" onclick="openProduct('cashews')">
+<img src="cashews.jpg">
+<div class="card-title">Handpicked Cashews</div>
+</div>
+ 
+<div class="card" onclick="openProduct('dates')">
+<img src="dates.jpg">
+<div class="card-title">Natural Dates</div>
+</div>
+ 
+<div class="card"><img src="pistachios.jpg"><div class="card-title">Premium Pistachios</div></div>
+<div class="card"><img src="walnuts.jpg"><div class="card-title">Walnut Kernels</div></div>
+<div class="card"><img src="raisins.jpg"><div class="card-title">Raisins</div></div>
+<div class="card"><img src="goldenraisins.jpg"><div class="card-title">Golden Raisins</div></div>
+<div class="card"><img src="blackraisins.jpg"><div class="card-title">Black Raisins</div></div>
+<div class="card"><img src="driedfigs.jpg"><div class="card-title">Dried Figs</div></div>
+<div class="card"><img src="driedcoconut.jpg"><div class="card-title">Dried Coconut</div></div>
+<div class="card"><img src="driedmango.jpg"><div class="card-title">Dried Mango</div></div>
+<div class="card"><img src="pumpkinseeds.jpg"><div class="card-title">Pumpkin Seeds</div></div>
+<div class="card"><img src="sunflowerseeds.jpg"><div class="card-title">Sunflower Seeds</div></div>
+<div class="card"><img src="chiaseeds.jpg"><div class="card-title">Chia Seeds</div></div>
+ 
+</div>
+ 
+<div id="makhana" class="details active">
+<h3>Premium Makhana</h3>
+<table>
+<tr><th>Grade</th><th>Size</th><th>Price/kg</th></tr>
+<tr><td>A+</td><td>Extra Large</td><td>₹1550</td></tr>
+<tr><td>A</td><td>Large</td><td>₹1200</td></tr>
+<tr><td>B</td><td>Medium</td><td>₹1000</td></tr>
+<tr><td>C</td><td>Small</td><td>₹800</td></tr>
+</table>
+ 
+https://wa.me/919823150690?text=Interested%20in%20Premium%20Makhana
+WhatsApp Enquiry
+</a>
+</div>
+ 
+<div id="almonds" class="details">
+<h3>California Almonds</h3>
+<p>Premium export quality almonds available for retail and bulk supply.</p>
+</div>
+ 
+<div id="cashews" class="details">
+<h3>Handpicked Cashews</h3>
+<p>Available in W180, W240 and W320 grades.</p>
+</div>
+ 
+<div id="dates" class="details">
+<h3>Natural Dates</h3>
+<p>Premium quality dates suitable for retail and wholesale supply.</p>
+</div>
+ 
+</section>
+ 
+<section id="contact" class="section">
+<h2>Contact Us</h2>
+ 
+<div class="contact-box">
+<p><strong>Email:</strong> vedprish20162021@gmail.com</p>
+<p><strong>Mobile:</strong> +91 9890798935</p>
+<p><strong>WhatsApp:</strong> +91 9890798935</p>
+ 
+https://wa.me/919890798935?text=Hello%20Vedisha
+Chat on WhatsApp
+</a>
+</div>
+</section>
+ 
+<footer>
+Vedisha | Premium Healthy Dry Fruit Supplier<br>
+Email: vedprish20162021@gmail.com<br>
+Mobile: +91 9890798935
+</footer>
+ 
+https://wa.me/919823150690?text=Hello%20Vedisha
+WhatsApp
+</a>
+ 
+</body>
+</html>
