@@ -218,28 +218,33 @@ th, td {
   padding: 10px;
 }
 
-.product-actions {
+.cart-cell {
+  white-space: nowrap;
+}
+
+.cart-cell .cart-cell-inner {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-top: 15px;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
 .quantity-input {
-  width: 80px;
+  width: 64px;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .add-to-cart-btn {
   display: inline-block;
   background: #0A2A66;
   color: white;
-  padding: 10px 18px;
+  padding: 8px 14px;
   border-radius: 6px;
   text-decoration: none;
   font-size: 14px;
@@ -253,6 +258,10 @@ th, td {
   background: #072050;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(10, 42, 102, 0.4);
+}
+
+.add-to-cart-btn.added {
+  background: #25D366;
 }
 
 .wa-btn {
@@ -582,10 +591,6 @@ footer {
     gap: 15px 12px;
   }
   
-  header {
-    position: relative;
-  }
-  
   header img {
     width: 90%;
   }
@@ -637,13 +642,8 @@ footer {
     padding: 8px;
   }
   
-  .product-actions {
-    flex-direction: column;
-  }
-  
-  .quantity-input,
-  .add-to-cart-btn {
-    width: 100%;
+  .cart-cell {
+    white-space: normal;
   }
   
   .contact-box {
@@ -763,6 +763,11 @@ footer {
     padding: 6px;
   }
   
+  .add-to-cart-btn {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  
   .contact-box {
     padding: 15px 12px;
     max-width: 100%;
@@ -824,6 +829,11 @@ footer {
 // Cart Management
 let cart = JSON.parse(localStorage.getItem('vedishaCart')) || [];
 
+function saveCart() {
+  localStorage.setItem('vedishaCart', JSON.stringify(cart));
+  updateCartCount();
+}
+
 function updateCartCount() {
   const cartCount = document.querySelector('.cart-count');
   if (cartCount) {
@@ -831,33 +841,38 @@ function updateCartCount() {
   }
 }
 
-function addToCart(productName, grade, price) {
-  const quantity = parseInt(document.getElementById(productName + '-qty').value) || 1;
-  
+// Add the product/grade of the table row where the button was clicked
+function addRowToCart(btn) {
+  const row = btn.closest('tr');
+  const productName = row.dataset.product;
+  const grade = row.dataset.grade;
+  const price = row.dataset.price;
+  const qtyInput = row.querySelector('.row-qty');
+  const quantity = Math.max(1, parseInt(qtyInput.value) || 1);
+
   const existingItem = cart.find(item => item.productName === productName && item.grade === grade);
-  
+
   if (existingItem) {
     existingItem.quantity += quantity;
   } else {
-    cart.push({
-      productName: productName,
-      grade: grade,
-      price: price,
-      quantity: quantity
-    });
+    cart.push({ productName, grade, price, quantity });
   }
-  
-  localStorage.setItem('vedishaCart', JSON.stringify(cart));
-  updateCartCount();
-  
-  // Show notification
-  alert(`${productName} (${grade}) added to cart!`);
+
+  saveCart();
+
+  // Brief visual confirmation on the button
+  const original = btn.textContent;
+  btn.textContent = 'Added ✓';
+  btn.classList.add('added');
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.classList.remove('added');
+  }, 1200);
 }
 
 function removeFromCart(index) {
   cart.splice(index, 1);
-  localStorage.setItem('vedishaCart', JSON.stringify(cart));
-  updateCartCount();
+  saveCart();
   displayCart();
 }
 
@@ -928,8 +943,7 @@ function proceedToCheckout() {
   
   // Clear cart after checkout
   cart = [];
-  localStorage.setItem('vedishaCart', JSON.stringify(cart));
-  updateCartCount();
+  saveCart();
   closeModal('cartModal');
   alert('Order sent to WhatsApp! Our team will contact you soon.');
 }
@@ -1202,17 +1216,12 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <span class="close-details" onclick="closeProduct('makhana')">&times;</span>
 <h3>Premium Makhana</h3>
 <table>
-<tr><th>Grade</th><th>Size</th><th>Price/kg</th></tr>
-<tr><td>A+</td><td>Extra Large</td><td>₹1650</td></tr>
-<tr><td>A</td><td>Large</td><td>₹1400</td></tr>
-<tr><td>B</td><td>Medium</td><td>₹1100</td></tr>
-<tr><td>C</td><td>Small</td><td>₹850</td></tr>
+<tr><th>Grade</th><th>Size</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Premium Makhana" data-grade="A+" data-price="1650"><td>A+</td><td>Extra Large</td><td>₹1650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="A" data-price="1400"><td>A</td><td>Large</td><td>₹1400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="B" data-price="1100"><td>B</td><td>Medium</td><td>₹1100</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="C" data-price="850"><td>C</td><td>Small</td><td>₹850</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="makhana-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Premium Makhana', 'Grade A+', '1650')">Add to Cart (A+)</button>
-  <button class="add-to-cart-btn" onclick="addToCart('Premium Makhana', 'Grade A', '1400')">Add to Cart (A)</button>
-</div>
 </div>
 
 <div id="almonds" class="details">
@@ -1220,14 +1229,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>California Almonds</h3>
 <p>Premium export quality almonds available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹800</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="California Almonds" data-grade="Premium" data-price="800"><td>Premium</td><td>₹800</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="almonds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('California Almonds', 'Premium', '800')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20California%20Almonds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20California%20Almonds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="cashews" class="details">
@@ -1235,17 +1240,12 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Handpicked Cashews</h3>
 <p>Available in W180, W240 and W320 grades.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>W180</td><td>₹1400</td></tr>
-<tr><td>W240</td><td>₹1350</td></tr>
-<tr><td>W320</td><td>₹1300</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Handpicked Cashews" data-grade="W180" data-price="1400"><td>W180</td><td>₹1400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Handpicked Cashews" data-grade="W240" data-price="1350"><td>W240</td><td>₹1350</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Handpicked Cashews" data-grade="W320" data-price="1300"><td>W320</td><td>₹1300</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="cashews-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Handpicked Cashews', 'W180', '1400')">Add to Cart (W180)</button>
-  <button class="add-to-cart-btn" onclick="addToCart('Handpicked Cashews', 'W240', '1350')">Add to Cart (W240)</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Handpicked%20Cashews" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Handpicked%20Cashews" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="dates" class="details">
@@ -1253,14 +1253,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Natural Dates</h3>
 <p>Premium quality dates suitable for retail and wholesale supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹900</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Natural Dates" data-grade="Premium" data-price="900"><td>Premium</td><td>₹900</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="dates-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Natural Dates', 'Premium', '900')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Natural%20Dates" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Natural%20Dates" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="pistachios" class="details">
@@ -1268,14 +1264,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Premium Pistachios</h3>
 <p>High-quality pistachios available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹1250</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Premium Pistachios" data-grade="Premium" data-price="1250"><td>Premium</td><td>₹1250</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="pistachios-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Premium Pistachios', 'Premium', '1250')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Premium%20Pistachios" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Premium%20Pistachios" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="walnuts" class="details">
@@ -1283,14 +1275,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Walnut Kernels</h3>
 <p>Premium walnut kernels suitable for all uses.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹650</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Walnut Kernels" data-grade="Premium" data-price="650"><td>Premium</td><td>₹650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="walnuts-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Walnut Kernels', 'Premium', '650')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Walnut%20Kernels" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Walnut%20Kernels" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="raisins" class="details">
@@ -1298,14 +1286,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Mix Raisins</h3>
 <p>Premium quality mix raisins available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹450</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Mix Raisins" data-grade="Premium" data-price="450"><td>Premium</td><td>₹450</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="raisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Mix Raisins', 'Premium', '450')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Mix%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Mix%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="goldenraisins" class="details">
@@ -1313,14 +1297,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Golden Raisins</h3>
 <p>Premium quality golden raisins with superior taste.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹700</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Golden Raisins" data-grade="Premium" data-price="700"><td>Premium</td><td>₹700</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="goldenraisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Golden Raisins', 'Premium', '700')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Golden%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Golden%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="blackraisins" class="details">
@@ -1328,14 +1308,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Black Raisins</h3>
 <p>Premium quality black raisins available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹600</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Black Raisins" data-grade="Premium" data-price="600"><td>Premium</td><td>₹600</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="blackraisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Black Raisins', 'Premium', '600')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Black%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Black%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="driedfigs" class="details">
@@ -1343,14 +1319,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Dried Figs</h3>
 <p>Premium quality dried figs available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹1200</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Figs" data-grade="Premium" data-price="1200"><td>Premium</td><td>₹1200</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="driedfigs-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Dried Figs', 'Premium', '1200')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Figs" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Figs" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="driedcoconut" class="details">
@@ -1358,14 +1330,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Dried Coconut</h3>
 <p>Premium quality dried coconut available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹350</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Coconut" data-grade="Premium" data-price="350"><td>Premium</td><td>₹350</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="driedcoconut-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Dried Coconut', 'Premium', '350')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Coconut" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Coconut" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="driedmango" class="details">
@@ -1373,14 +1341,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Dried Mango</h3>
 <p>Premium quality dried mango available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹550</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Mango" data-grade="Premium" data-price="550"><td>Premium</td><td>₹550</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="driedmango-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Dried Mango', 'Premium', '550')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Mango" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Mango" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="pumpkinseeds" class="details">
@@ -1388,14 +1352,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Pumpkin Seeds</h3>
 <p>Nutritious pumpkin seeds available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹500</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Pumpkin Seeds" data-grade="Premium" data-price="500"><td>Premium</td><td>₹500</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="pumpkinseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Pumpkin Seeds', 'Premium', '500')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Pumpkin%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Pumpkin%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="sunflowerseeds" class="details">
@@ -1403,14 +1363,10 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Sunflower Seeds</h3>
 <p>High-quality sunflower seeds available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹400</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Sunflower Seeds" data-grade="Premium" data-price="400"><td>Premium</td><td>₹400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="sunflowerseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Sunflower Seeds', 'Premium', '400')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Sunflower%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Sunflower%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
 <div id="chiaseeds" class="details">
@@ -1418,17 +1374,13 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <h3>Chia Seeds</h3>
 <p>Premium quality chia seeds available for retail and bulk supply.</p>
 <table>
-<tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹650</td></tr>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Chia Seeds" data-grade="Premium" data-price="650"><td>Premium</td><td>₹650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
 </table>
-<div class="product-actions">
-  <input type="number" id="chiaseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
-  <button class="add-to-cart-btn" onclick="addToCart('Chia Seeds', 'Premium', '650')">Add to Cart</button>
-  <a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
-</div>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
 </div>
 
-</div>
+</section>
 
 <!-- Cart Modal -->
 <div id="cartModal" class="modal">
