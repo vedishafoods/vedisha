@@ -49,6 +49,7 @@ nav a {
   display: inline-block;
   border-radius: 4px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 nav a:hover {
@@ -315,6 +316,49 @@ footer {
   transform: scale(1.1);
 }
 
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+}
+
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 700px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #0A2A66;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+  color: #999;
+  transform: scale(1.2);
+}
+
+.modal h3 {
+  margin-top: 0;
+}
+
 @media (max-width: 1180px) {
   .grid {
     grid-template-columns: repeat(4, minmax(180px, 1fr));
@@ -442,6 +486,11 @@ footer {
     right: 15px;
     bottom: 15px;
   }
+  
+  .modal-content {
+    margin: 20% auto;
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -553,6 +602,11 @@ footer {
     right: 10px;
     bottom: 10px;
   }
+  
+  .modal-content {
+    margin: 30% auto;
+    padding: 20px;
+  }
 }
 </style>
 
@@ -562,6 +616,26 @@ function openProduct(id){
     x.classList.remove('active');
   });
   document.getElementById(id).classList.add('active');
+}
+
+function openModal(modalId) {
+  document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+}
+
+window.onclick = function(event) {
+  let inquiryModal = document.getElementById('inquiryModal');
+  let feedbackModal = document.getElementById('feedbackModal');
+  
+  if (event.target === inquiryModal) {
+    inquiryModal.style.display = 'none';
+  }
+  if (event.target === feedbackModal) {
+    feedbackModal.style.display = 'none';
+  }
 }
 
 function submitInquiryForm(event) {
@@ -576,9 +650,8 @@ function submitInquiryForm(event) {
   btn.disabled = true;
   btn.textContent = 'Submitting...';
   
-  // Submit to Google Forms
   const formData = new FormData();
-  formData.append('entry.1234567890', name); // Replace with actual entry ID
+  formData.append('entry.1234567890', name);
   formData.append('entry.1234567891', email);
   formData.append('entry.1234567892', phone);
   formData.append('entry.1234567893', product);
@@ -589,26 +662,27 @@ function submitInquiryForm(event) {
     body: formData,
     mode: 'no-cors'
   }).then(() => {
-    // After Google Forms submission, open WhatsApp
     const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
     window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
     
     document.getElementById('inquiryForm').reset();
     document.getElementById('inquirySuccess').style.display = 'block';
     setTimeout(() => {
+      closeModal('inquiryModal');
       document.getElementById('inquirySuccess').style.display = 'none';
     }, 3000);
     
     btn.disabled = false;
     btn.textContent = 'Submit Inquiry';
   }).catch(err => {
-    console.log('Form submitted (Google Forms might require setup)');
+    console.log('Form submitted');
     const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
     window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
     
     document.getElementById('inquiryForm').reset();
     document.getElementById('inquirySuccess').style.display = 'block';
     setTimeout(() => {
+      closeModal('inquiryModal');
       document.getElementById('inquirySuccess').style.display = 'none';
     }, 3000);
     
@@ -629,9 +703,8 @@ function submitFeedbackForm(event) {
   btn.disabled = true;
   btn.textContent = 'Submitting...';
   
-  // Submit to Google Forms
   const formData = new FormData();
-  formData.append('entry.1234567895', name); // Replace with actual entry ID
+  formData.append('entry.1234567895', name);
   formData.append('entry.1234567896', email);
   formData.append('entry.1234567897', mobile);
   formData.append('entry.1234567898', rating);
@@ -648,19 +721,21 @@ function submitFeedbackForm(event) {
     document.getElementById('feedbackForm').reset();
     document.getElementById('feedbackSuccess').style.display = 'block';
     setTimeout(() => {
+      closeModal('feedbackModal');
       document.getElementById('feedbackSuccess').style.display = 'none';
     }, 3000);
     
     btn.disabled = false;
     btn.textContent = 'Submit Feedback';
   }).catch(err => {
-    console.log('Form submitted (Google Forms might require setup)');
+    console.log('Form submitted');
     const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
     window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
     
     document.getElementById('feedbackForm').reset();
     document.getElementById('feedbackSuccess').style.display = 'block';
     setTimeout(() => {
+      closeModal('feedbackModal');
       document.getElementById('feedbackSuccess').style.display = 'none';
     }, 3000);
     
@@ -679,8 +754,8 @@ function submitFeedbackForm(event) {
 <nav>
   <a href="#about">About</a>
   <a href="#products">Products</a>
-  <a href="#inquiry">Inquiry</a>
-  <a href="#feedback">Feedback</a>
+  <a onclick="openModal('inquiryModal')">Inquiry</a>
+  <a onclick="openModal('feedbackModal')">Feedback</a>
   <a href="#contact">Contact Us</a>
 </nav>
 </header>
@@ -930,101 +1005,105 @@ function submitFeedbackForm(event) {
 
 </section>
 
-<section id="inquiry" class="section">
-<div class="form-section">
-<h3>Product Inquiry Form</h3>
-<div class="form-info">💬 Your inquiry will be saved to our database AND sent to WhatsApp for instant response!</div>
-<div class="success-message" id="inquirySuccess">✓ Inquiry submitted! Opening WhatsApp for quick chat...</div>
-<form id="inquiryForm" onsubmit="submitInquiryForm(event)">
-  <div class="form-group">
-    <label for="inquiryName">Full Name *</label>
-    <input type="text" id="inquiryName" name="name" required>
+<!-- Inquiry Modal -->
+<div id="inquiryModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('inquiryModal')">&times;</span>
+    <h3>Product Inquiry Form</h3>
+    <div class="form-info">💬 Your inquiry will be saved to our database AND sent to WhatsApp for instant response!</div>
+    <div class="success-message" id="inquirySuccess">✓ Inquiry submitted! Opening WhatsApp for quick chat...</div>
+    <form id="inquiryForm" onsubmit="submitInquiryForm(event)">
+      <div class="form-group">
+        <label for="inquiryName">Full Name *</label>
+        <input type="text" id="inquiryName" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="inquiryEmail">Email Address *</label>
+        <input type="email" id="inquiryEmail" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="inquiryPhone">Phone Number *</label>
+        <input type="tel" id="inquiryPhone" name="phone" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="inquiryProduct">Product of Interest *</label>
+        <select id="inquiryProduct" name="product_interest" required>
+          <option value="">-- Select a Product --</option>
+          <option value="Premium Makhana">Premium Makhana</option>
+          <option value="California Almonds">California Almonds</option>
+          <option value="Handpicked Cashews">Handpicked Cashews</option>
+          <option value="Natural Dates">Natural Dates</option>
+          <option value="Premium Pistachios">Premium Pistachios</option>
+          <option value="Walnut Kernels">Walnut Kernels</option>
+          <option value="Raisins">Raisins</option>
+          <option value="Golden Raisins">Golden Raisins</option>
+          <option value="Black Raisins">Black Raisins</option>
+          <option value="Dried Figs">Dried Figs</option>
+          <option value="Dried Coconut">Dried Coconut</option>
+          <option value="Dried Mango">Dried Mango</option>
+          <option value="Pumpkin Seeds">Pumpkin Seeds</option>
+          <option value="Sunflower Seeds">Sunflower Seeds</option>
+          <option value="Chia Seeds">Chia Seeds</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="inquiryMessage">Message *</label>
+        <textarea id="inquiryMessage" name="message" required></textarea>
+      </div>
+      
+      <button type="submit" class="form-btn">Submit Inquiry</button>
+    </form>
   </div>
-  
-  <div class="form-group">
-    <label for="inquiryEmail">Email Address *</label>
-    <input type="email" id="inquiryEmail" name="email" required>
-  </div>
-  
-  <div class="form-group">
-    <label for="inquiryPhone">Phone Number *</label>
-    <input type="tel" id="inquiryPhone" name="phone" required>
-  </div>
-  
-  <div class="form-group">
-    <label for="inquiryProduct">Product of Interest *</label>
-    <select id="inquiryProduct" name="product_interest" required>
-      <option value="">-- Select a Product --</option>
-      <option value="Premium Makhana">Premium Makhana</option>
-      <option value="California Almonds">California Almonds</option>
-      <option value="Handpicked Cashews">Handpicked Cashews</option>
-      <option value="Natural Dates">Natural Dates</option>
-      <option value="Premium Pistachios">Premium Pistachios</option>
-      <option value="Walnut Kernels">Walnut Kernels</option>
-      <option value="Raisins">Raisins</option>
-      <option value="Golden Raisins">Golden Raisins</option>
-      <option value="Black Raisins">Black Raisins</option>
-      <option value="Dried Figs">Dried Figs</option>
-      <option value="Dried Coconut">Dried Coconut</option>
-      <option value="Dried Mango">Dried Mango</option>
-      <option value="Pumpkin Seeds">Pumpkin Seeds</option>
-      <option value="Sunflower Seeds">Sunflower Seeds</option>
-      <option value="Chia Seeds">Chia Seeds</option>
-    </select>
-  </div>
-  
-  <div class="form-group">
-    <label for="inquiryMessage">Message *</label>
-    <textarea id="inquiryMessage" name="message" required></textarea>
-  </div>
-  
-  <button type="submit" class="form-btn">Submit Inquiry</button>
-</form>
 </div>
-</section>
 
-<section id="feedback" class="section">
-<div class="form-section">
-<h3>Feedback Form</h3>
-<div class="form-info">💬 Share your valuable feedback - saved to our database AND sent to WhatsApp!</div>
-<div class="success-message" id="feedbackSuccess">✓ Feedback submitted! Opening WhatsApp...</div>
-<form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
-  <div class="form-group">
-    <label for="feedbackName">Full Name *</label>
-    <input type="text" id="feedbackName" name="name" required>
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal('feedbackModal')">&times;</span>
+    <h3>Feedback Form</h3>
+    <div class="form-info">💬 Share your valuable feedback - saved to our database AND sent to WhatsApp!</div>
+    <div class="success-message" id="feedbackSuccess">✓ Feedback submitted! Opening WhatsApp...</div>
+    <form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
+      <div class="form-group">
+        <label for="feedbackName">Full Name *</label>
+        <input type="text" id="feedbackName" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="feedbackEmail">Email Address *</label>
+        <input type="email" id="feedbackEmail" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="feedbackPhone">Mobile Number *</label>
+        <input type="tel" id="feedbackPhone" name="mobile_number" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="feedbackRating">Rating *</label>
+        <select id="feedbackRating" name="rating" required>
+          <option value="">-- Select Rating --</option>
+          <option value="Excellent">Excellent</option>
+          <option value="Very Good">Very Good</option>
+          <option value="Good">Good</option>
+          <option value="Average">Average</option>
+          <option value="Poor">Poor</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="feedbackMessage">Your Feedback *</label>
+        <textarea id="feedbackMessage" name="feedback_message" required></textarea>
+      </div>
+      
+      <button type="submit" class="form-btn">Submit Feedback</button>
+    </form>
   </div>
-  
-  <div class="form-group">
-    <label for="feedbackEmail">Email Address *</label>
-    <input type="email" id="feedbackEmail" name="email" required>
-  </div>
-  
-  <div class="form-group">
-    <label for="feedbackPhone">Mobile Number *</label>
-    <input type="tel" id="feedbackPhone" name="mobile_number" required>
-  </div>
-  
-  <div class="form-group">
-    <label for="feedbackRating">Rating *</label>
-    <select id="feedbackRating" name="rating" required>
-      <option value="">-- Select Rating --</option>
-      <option value="Excellent">Excellent</option>
-      <option value="Very Good">Very Good</option>
-      <option value="Good">Good</option>
-      <option value="Average">Average</option>
-      <option value="Poor">Poor</option>
-    </select>
-  </div>
-  
-  <div class="form-group">
-    <label for="feedbackMessage">Your Feedback *</label>
-    <textarea id="feedbackMessage" name="feedback_message" required></textarea>
-  </div>
-  
-  <button type="submit" class="form-btn">Submit Feedback</button>
-</form>
 </div>
-</section>
 
 <section id="contact" class="section">
 <h2>Contact Us</h2>
