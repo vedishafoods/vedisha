@@ -22,6 +22,7 @@ header {
   padding: 20px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  position: relative;
 }
 
 header img {
@@ -29,6 +30,39 @@ header img {
   width: 85%;
   display: block;
   margin: 0 auto;
+}
+
+.cart-icon-container {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-icon {
+  cursor: pointer;
+  font-size: 24px;
+  color: #0A2A66;
+  transition: all 0.3s ease;
+}
+
+.cart-icon:hover {
+  transform: scale(1.2);
+}
+
+.cart-count {
+  background: #FFEB3B;
+  color: #0A2A66;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
 }
 
 nav {
@@ -176,11 +210,49 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 18px;
+  margin-bottom: 15px;
 }
 
 th, td {
   border: 1px solid #ddd;
   padding: 10px;
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.quantity-input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.add-to-cart-btn {
+  display: inline-block;
+  background: #0A2A66;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.add-to-cart-btn:hover {
+  background: #072050;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 42, 102, 0.4);
 }
 
 .wa-btn {
@@ -384,6 +456,96 @@ footer {
   margin-top: 0;
 }
 
+/* Cart Modal Styles */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background: #f9f9f9;
+}
+
+.cart-item-info {
+  flex-grow: 1;
+}
+
+.cart-item-name {
+  font-weight: 600;
+  color: #0A2A66;
+  margin-bottom: 4px;
+}
+
+.cart-item-details {
+  font-size: 14px;
+  color: #666;
+}
+
+.cart-item-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.remove-item-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.remove-item-btn:hover {
+  background: #cc0000;
+}
+
+.cart-summary {
+  background: #f0f0f0;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 20px 0;
+  border-left: 4px solid #0A2A66;
+}
+
+.cart-total {
+  font-size: 20px;
+  font-weight: bold;
+  color: #0A2A66;
+  text-align: right;
+  margin-top: 10px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.checkout-btn {
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.checkout-btn:hover {
+  background: #20ba5e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
 @media (max-width: 1180px) {
   .grid {
     grid-template-columns: repeat(4, minmax(180px, 1fr));
@@ -420,8 +582,17 @@ footer {
     gap: 15px 12px;
   }
   
+  header {
+    position: relative;
+  }
+  
   header img {
     width: 90%;
+  }
+  
+  .cart-icon-container {
+    right: 15px;
+    top: 15px;
   }
   
   nav {
@@ -464,6 +635,15 @@ footer {
   
   th, td {
     padding: 8px;
+  }
+  
+  .product-actions {
+    flex-direction: column;
+  }
+  
+  .quantity-input,
+  .add-to-cart-btn {
+    width: 100%;
   }
   
   .contact-box {
@@ -530,6 +710,11 @@ footer {
   
   header img {
     width: 95%;
+  }
+  
+  .cart-icon-container {
+    right: 10px;
+    top: 10px;
   }
   
   nav {
@@ -636,6 +821,119 @@ footer {
 </style>
 
 <script>
+// Cart Management
+let cart = JSON.parse(localStorage.getItem('vedishaCart')) || [];
+
+function updateCartCount() {
+  const cartCount = document.querySelector('.cart-count');
+  if (cartCount) {
+    cartCount.textContent = cart.length;
+  }
+}
+
+function addToCart(productName, grade, price) {
+  const quantity = parseInt(document.getElementById(productName + '-qty').value) || 1;
+  
+  const existingItem = cart.find(item => item.productName === productName && item.grade === grade);
+  
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    cart.push({
+      productName: productName,
+      grade: grade,
+      price: price,
+      quantity: quantity
+    });
+  }
+  
+  localStorage.setItem('vedishaCart', JSON.stringify(cart));
+  updateCartCount();
+  
+  // Show notification
+  alert(`${productName} (${grade}) added to cart!`);
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  localStorage.setItem('vedishaCart', JSON.stringify(cart));
+  updateCartCount();
+  displayCart();
+}
+
+function displayCart() {
+  const cartContainer = document.getElementById('cartItems');
+  
+  if (cart.length === 0) {
+    cartContainer.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+    document.getElementById('cartSummary').style.display = 'none';
+    document.getElementById('checkoutBtn').style.display = 'none';
+    return;
+  }
+  
+  document.getElementById('cartSummary').style.display = 'block';
+  document.getElementById('checkoutBtn').style.display = 'block';
+  
+  let html = '';
+  let total = 0;
+  
+  cart.forEach((item, index) => {
+    const itemTotal = parseFloat(item.price) * item.quantity;
+    total += itemTotal;
+    
+    html += `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.productName}</div>
+          <div class="cart-item-details">
+            Grade: ${item.grade} | Price: ₹${item.price}/kg | Qty: ${item.quantity}kg
+          </div>
+          <div class="cart-item-details">Subtotal: ₹${itemTotal.toFixed(2)}</div>
+        </div>
+        <div class="cart-item-actions">
+          <button class="remove-item-btn" onclick="removeFromCart(${index})">Remove</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  cartContainer.innerHTML = html;
+  
+  document.querySelector('.cart-total').innerHTML = `Total: ₹${total.toFixed(2)}`;
+}
+
+function openCart() {
+  displayCart();
+  openModal('cartModal');
+}
+
+function proceedToCheckout() {
+  if (cart.length === 0) {
+    alert('Your cart is empty!');
+    return;
+  }
+  
+  let cartMessage = 'Hi Vedisha,%0A%0AI would like to order the following items:%0A%0A';
+  let total = 0;
+  
+  cart.forEach(item => {
+    const itemTotal = parseFloat(item.price) * item.quantity;
+    total += itemTotal;
+    cartMessage += `${item.productName} (${item.grade}): ${item.quantity}kg @ ₹${item.price}/kg = ₹${itemTotal.toFixed(2)}%0A`;
+  });
+  
+  cartMessage += `%0ATotal: ₹${total.toFixed(2)}%0A%0APlease confirm availability and provide delivery details.`;
+  
+  window.open(`https://wa.me/919890798935?text=${cartMessage}`, '_blank');
+  
+  // Clear cart after checkout
+  cart = [];
+  localStorage.setItem('vedishaCart', JSON.stringify(cart));
+  updateCartCount();
+  closeModal('cartModal');
+  alert('Order sent to WhatsApp! Our team will contact you soon.');
+}
+
 // Pricing details: hidden by default, shown inline on the same page when a product is clicked.
 // Clicking the same product again (or the X button) hides it.
 function openProduct(id){
@@ -667,12 +965,16 @@ function closeModal(modalId) {
 window.onclick = function(event) {
   let inquiryModal = document.getElementById('inquiryModal');
   let feedbackModal = document.getElementById('feedbackModal');
+  let cartModal = document.getElementById('cartModal');
   
   if (event.target === inquiryModal) {
     inquiryModal.style.display = 'none';
   }
   if (event.target === feedbackModal) {
     feedbackModal.style.display = 'none';
+  }
+  if (event.target === cartModal) {
+    cartModal.style.display = 'none';
   }
 }
 
@@ -781,6 +1083,9 @@ function submitFeedbackForm(event) {
     btn.textContent = 'Submit Feedback';
   });
 }
+
+// Initialize cart count on page load
+document.addEventListener('DOMContentLoaded', updateCartCount);
 </script>
 </head>
 
@@ -788,6 +1093,11 @@ function submitFeedbackForm(event) {
 
 <header>
 <img src="logo.png" alt="Vedisha Logo">
+
+<div class="cart-icon-container">
+  <span class="cart-icon" onclick="openCart()">🛒</span>
+  <div class="cart-count">0</div>
+</div>
 
 <nav>
   <a href="#about">About</a>
@@ -802,7 +1112,7 @@ function submitFeedbackForm(event) {
 <h2>About Us</h2>
 
 <div class="about">
-<p>Vedisha is dedicated to supplying premium-quality dry fruits, makhana, seeds, and healthy snack products with a strong focus on freshness, purity, and taste. We carefully select every product to ensure the best quality and value for our customers. Our commitment to healthy living and premium sourcing makes us a trusted partner for both retail and bulk buyers.</p>
+<p>Vedisha is dedicated to supplying premium-quality dry fruits, makhana, seeds, and healthy snack products with a strong focus on freshness, purity, and taste. We carefully select every product to ensure the highest standards of quality for our customers.</p>
 </div>
 </section>
 
@@ -898,6 +1208,11 @@ function submitFeedbackForm(event) {
 <tr><td>B</td><td>Medium</td><td>₹1100</td></tr>
 <tr><td>C</td><td>Small</td><td>₹850</td></tr>
 </table>
+<div class="product-actions">
+  <input type="number" id="makhana-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Premium Makhana', 'Grade A+', '1650')">Add to Cart (A+)</button>
+  <button class="add-to-cart-btn" onclick="addToCart('Premium Makhana', 'Grade A', '1400')">Add to Cart (A)</button>
+</div>
 </div>
 
 <div id="almonds" class="details">
@@ -908,7 +1223,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹800</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20California%20Almonds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="almonds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('California Almonds', 'Premium', '800')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20California%20Almonds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="cashews" class="details">
@@ -921,7 +1240,12 @@ function submitFeedbackForm(event) {
 <tr><td>W240</td><td>₹1350</td></tr>
 <tr><td>W320</td><td>₹1300</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Handpicked%20Cashews" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="cashews-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Handpicked Cashews', 'W180', '1400')">Add to Cart (W180)</button>
+  <button class="add-to-cart-btn" onclick="addToCart('Handpicked Cashews', 'W240', '1350')">Add to Cart (W240)</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Handpicked%20Cashews" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="dates" class="details">
@@ -932,7 +1256,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹900</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Natural%20Dates" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="dates-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Natural Dates', 'Premium', '900')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Natural%20Dates" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="pistachios" class="details">
@@ -943,7 +1271,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹1250</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Premium%20Pistachios" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="pistachios-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Premium Pistachios', 'Premium', '1250')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Premium%20Pistachios" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="walnuts" class="details">
@@ -954,7 +1286,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹650</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Walnut%20Kernels" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="walnuts-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Walnut Kernels', 'Premium', '650')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Walnut%20Kernels" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="raisins" class="details">
@@ -965,7 +1301,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹450</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Mix%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="raisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Mix Raisins', 'Premium', '450')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Mix%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="goldenraisins" class="details">
@@ -976,7 +1316,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹700</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Golden%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="goldenraisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Golden Raisins', 'Premium', '700')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Golden%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="blackraisins" class="details">
@@ -987,7 +1331,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹600</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Black%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="blackraisins-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Black Raisins', 'Premium', '600')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Black%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="driedfigs" class="details">
@@ -998,7 +1346,11 @@ function submitFeedbackForm(event) {
 <tr><th>Grade</th><th>Price/kg</th></tr>
 <tr><td>Premium</td><td>₹1200</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Figs" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="driedfigs-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Dried Figs', 'Premium', '1200')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Figs" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="driedcoconut" class="details">
@@ -1007,9 +1359,13 @@ function submitFeedbackForm(event) {
 <p>Premium quality dried coconut available for retail and bulk supply.</p>
 <table>
 <tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹700</td></tr>
+<tr><td>Premium</td><td>₹350</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Coconut" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="driedcoconut-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Dried Coconut', 'Premium', '350')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Coconut" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="driedmango" class="details">
@@ -1018,31 +1374,43 @@ function submitFeedbackForm(event) {
 <p>Premium quality dried mango available for retail and bulk supply.</p>
 <table>
 <tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹1300</td></tr>
+<tr><td>Premium</td><td>₹550</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Mango" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="driedmango-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Dried Mango', 'Premium', '550')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Mango" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="pumpkinseeds" class="details">
 <span class="close-details" onclick="closeProduct('pumpkinseeds')">&times;</span>
 <h3>Pumpkin Seeds</h3>
-<p>Premium quality pumpkin seeds available for retail and bulk supply.</p>
+<p>Nutritious pumpkin seeds available for retail and bulk supply.</p>
 <table>
 <tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹1100</td></tr>
+<tr><td>Premium</td><td>₹500</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Pumpkin%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="pumpkinseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Pumpkin Seeds', 'Premium', '500')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Pumpkin%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="sunflowerseeds" class="details">
 <span class="close-details" onclick="closeProduct('sunflowerseeds')">&times;</span>
 <h3>Sunflower Seeds</h3>
-<p>Premium quality sunflower seeds available for retail and bulk supply.</p>
+<p>High-quality sunflower seeds available for retail and bulk supply.</p>
 <table>
 <tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹450</td></tr>
+<tr><td>Premium</td><td>₹400</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Sunflower%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="sunflowerseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Sunflower Seeds', 'Premium', '400')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Sunflower%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
 <div id="chiaseeds" class="details">
@@ -1051,131 +1419,117 @@ function submitFeedbackForm(event) {
 <p>Premium quality chia seeds available for retail and bulk supply.</p>
 <table>
 <tr><th>Grade</th><th>Price/kg</th></tr>
-<tr><td>Premium</td><td>₹800</td></tr>
+<tr><td>Premium</td><td>₹650</td></tr>
 </table>
-<a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+<div class="product-actions">
+  <input type="number" id="chiaseeds-qty" class="quantity-input" value="1" min="1" placeholder="Enter quantity in kg">
+  <button class="add-to-cart-btn" onclick="addToCart('Chia Seeds', 'Premium', '650')">Add to Cart</button>
+  <a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
 </div>
 
-</section>
+</div>
+
+<!-- Cart Modal -->
+<div id="cartModal" class="modal">
+<div class="modal-content">
+  <span class="close-modal" onclick="closeModal('cartModal')">&times;</span>
+  <h3>🛒 Shopping Cart</h3>
+  <div id="cartItems"></div>
+  <div id="cartSummary" class="cart-summary">
+    <div class="cart-total">Total: ₹0.00</div>
+  </div>
+  <button id="checkoutBtn" class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout via WhatsApp</button>
+</div>
+</div>
 
 <!-- Inquiry Modal -->
 <div id="inquiryModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('inquiryModal')">&times;</span>
-    <h3>Product Inquiry Form</h3>
-    <div class="form-info">💬 Your inquiry will be saved to our database AND sent to WhatsApp for instant response!</div>
-    <div class="success-message" id="inquirySuccess">✓ Inquiry submitted! Opening WhatsApp for quick chat...</div>
-    <form id="inquiryForm" onsubmit="submitInquiryForm(event)">
-      <div class="form-group">
-        <label for="inquiryName">Full Name *</label>
-        <input type="text" id="inquiryName" name="name" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="inquiryEmail">Email Address *</label>
-        <input type="email" id="inquiryEmail" name="email" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="inquiryPhone">Phone Number *</label>
-        <input type="tel" id="inquiryPhone" name="phone" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="inquiryProduct">Product of Interest *</label>
-        <select id="inquiryProduct" name="product_interest" required>
-          <option value="">-- Select a Product --</option>
-          <option value="Premium Makhana">Premium Makhana</option>
-          <option value="California Almonds">California Almonds</option>
-          <option value="Handpicked Cashews">Handpicked Cashews</option>
-          <option value="Natural Dates">Natural Dates</option>
-          <option value="Premium Pistachios">Premium Pistachios</option>
-          <option value="Walnut Kernels">Walnut Kernels</option>
-          <option value="Mix Raisins">Mix Raisins</option>
-          <option value="Golden Raisins">Golden Raisins</option>
-          <option value="Black Raisins">Black Raisins</option>
-          <option value="Dried Figs">Dried Figs</option>
-          <option value="Dried Coconut">Dried Coconut</option>
-          <option value="Dried Mango">Dried Mango</option>
-          <option value="Pumpkin Seeds">Pumpkin Seeds</option>
-          <option value="Sunflower Seeds">Sunflower Seeds</option>
-          <option value="Chia Seeds">Chia Seeds</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="inquiryMessage">Message *</label>
-        <textarea id="inquiryMessage" name="message" required></textarea>
-      </div>
-      
-      <button type="submit" class="form-btn">Submit Inquiry</button>
-    </form>
-  </div>
+<div class="modal-content">
+  <span class="close-modal" onclick="closeModal('inquiryModal')">&times;</span>
+  <h3>Product Inquiry</h3>
+  <div id="inquirySuccess" class="success-message">Thank you! Your inquiry has been submitted.</div>
+  <form id="inquiryForm" onsubmit="submitInquiryForm(event)">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="inquiryName" required>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="inquiryEmail" required>
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="tel" id="inquiryPhone" required>
+    </div>
+    <div class="form-group">
+      <label>Product of Interest</label>
+      <input type="text" id="inquiryProduct" required>
+    </div>
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="inquiryMessage" required></textarea>
+    </div>
+    <button type="submit" class="form-btn">Submit Inquiry</button>
+  </form>
+</div>
 </div>
 
 <!-- Feedback Modal -->
 <div id="feedbackModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal('feedbackModal')">&times;</span>
-    <h3>Feedback Form</h3>
-    <div class="form-info">💬 Share your valuable feedback - saved to our database AND sent to WhatsApp!</div>
-    <div class="success-message" id="feedbackSuccess">✓ Feedback submitted! Opening WhatsApp...</div>
-    <form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
-      <div class="form-group">
-        <label for="feedbackName">Full Name *</label>
-        <input type="text" id="feedbackName" name="name" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="feedbackEmail">Email Address *</label>
-        <input type="email" id="feedbackEmail" name="email" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="feedbackPhone">Mobile Number *</label>
-        <input type="tel" id="feedbackPhone" name="mobile_number" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="feedbackRating">Rating *</label>
-        <select id="feedbackRating" name="rating" required>
-          <option value="">-- Select Rating --</option>
-          <option value="Excellent">Excellent</option>
-          <option value="Very Good">Very Good</option>
-          <option value="Good">Good</option>
-          <option value="Average">Average</option>
-          <option value="Poor">Poor</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="feedbackMessage">Your Feedback *</label>
-        <textarea id="feedbackMessage" name="feedback_message" required></textarea>
-      </div>
-      
-      <button type="submit" class="form-btn">Submit Feedback</button>
-    </form>
-  </div>
+<div class="modal-content">
+  <span class="close-modal" onclick="closeModal('feedbackModal')">&times;</span>
+  <h3>Share Your Feedback</h3>
+  <div id="feedbackSuccess" class="success-message">Thank you! Your feedback has been submitted.</div>
+  <form id="feedbackForm" onsubmit="submitFeedbackForm(event)">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="feedbackName" required>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="feedbackEmail" required>
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="tel" id="feedbackPhone" required>
+    </div>
+    <div class="form-group">
+      <label>Rating</label>
+      <select id="feedbackRating" required>
+        <option value="">Select Rating</option>
+        <option value="5 - Excellent">5 - Excellent</option>
+        <option value="4 - Good">4 - Good</option>
+        <option value="3 - Average">3 - Average</option>
+        <option value="2 - Poor">2 - Poor</option>
+        <option value="1 - Very Poor">1 - Very Poor</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Your Feedback</label>
+      <textarea id="feedbackMessage" required></textarea>
+    </div>
+    <button type="submit" class="form-btn">Submit Feedback</button>
+  </form>
+</div>
 </div>
 
 <section id="contact" class="section">
-<h2>Contact Us</h2>
-
+<h2>Get In Touch</h2>
 <div class="contact-box">
-<p><strong>Email:</strong> vedprish20162021@gmail.com</p>
-<p><strong>Mobile:</strong> +91 9890798935</p>
-<p><strong>WhatsApp:</strong> +91 9890798935</p>
-<a href="https://wa.me/919890798935?text=Hello%20Vedisha" class="wa-btn" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+  <p><strong>Vedisha - Premium Dry Fruits & Healthy Snacks</strong></p>
+  <p>📞 Phone: +91-98907-98935</p>
+  <p>📧 Email: contact@vedisha.com</p>
+  <p>Connect with us on WhatsApp for quick inquiries and bulk orders!</p>
+  <a href="https://wa.me/919890798935" class="wa-btn" target="_blank" rel="noopener noreferrer">💬 WhatsApp Us</a>
 </div>
 </section>
 
 <footer>
-Vedisha | Premium Healthy Dry Fruit Supplier<br>
-Email: vedprish20162021@gmail.com<br>
-Mobile: +91 9890798935
+<p>&copy; 2024 Vedisha - Premium Dry Fruits Supplier. All Rights Reserved.</p>
 </footer>
 
-<a href="https://wa.me/919890798935?text=Hello%20Vedisha" class="whatsapp-float" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+<a href="https://wa.me/919890798935" class="whatsapp-float" target="_blank" rel="noopener noreferrer">WhatsApp</a>
 
 </body>
 </html>
