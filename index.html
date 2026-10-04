@@ -6,128 +6,185 @@
 <title>Vedisha | Premium Healthy Dry Fruit Supplier</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f5f7fb;
-color:#333;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef1f5;
+  color: #333;
 }
-header{
-background:#fff;
-padding:20px;
-text-align:center;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
+
+header {
+  background: #fff;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
-header img{
-max-width:900px;
-width:90%;
+
+header img {
+  max-width: 900px;
+  width: 90%;
 }
-nav{
-margin-top:15px;
+
+nav {
+  margin-top: 15px;
 }
-nav a{
-text-decoration:none;
-color:#0A2A66;
-margin:0 20px;
-font-weight:bold;
-font-size:18px;
+
+nav a {
+  text-decoration: none;
+  color: #0A2A66;
+  margin: 0 20px;
+  font-weight: bold;
+  font-size: 18px;
 }
-.section{
-padding:40px 20px;
+
+.section {
+  padding: 40px 20px;
 }
-h2{
-text-align:center;
-color:#0A2A66;
+
+h2 {
+  text-align: center;
+  color: #0A2A66;
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 0 0 30px;
 }
-.about{
-max-width:1100px;
-margin:auto;
-line-height:1.8;
-text-align:justify;
+
+.about {
+  max-width: 1100px;
+  margin: auto;
+  line-height: 1.8;
+  text-align: justify;
 }
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(200px, 1fr));
+  gap: 26px 22px;
+  max-width: 1280px;
+  margin: 0 auto;
 }
-.card{
-background:#fff;
-border-radius:10px;
-overflow:hidden;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-cursor:pointer;
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,.08);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 1px solid rgba(0,0,0,0.04);
 }
-.card img{
-width:100%;
-height:150px;
-object-fit:cover;
+
+.card:hover {
+  transform: translateY(-2px);
 }
-.card-title{
-padding:12px;
-text-align:center;
-font-weight:bold;
+
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
 }
-.details{
-display:none;
-background:#fff;
-margin-top:15px;
-padding:20px;
-border-radius:10px;
+
+.card-title {
+  padding: 16px 12px;
+  text-align: center;
+  font-weight: 700;
+  color: #0A2A66;
+  background: #f3f3f3;
+  font-size: 15px;
 }
-.active{
-display:block;
+
+.details {
+  display: none;
+  background: #fff;
+  margin-top: 15px;
+  padding: 20px;
+  border-radius: 10px;
 }
-table{
-width:100%;
-border-collapse:collapse;
+
+.active {
+  display: block;
 }
-th,td{
-border:1px solid #ddd;
-padding:10px;
+
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
-.wa-btn{
-display:inline-block;
-background:#25D366;
-color:white;
-padding:10px 18px;
-border-radius:6px;
-text-decoration:none;
-margin-top:12px;
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
 }
-.contact-box{
-max-width:700px;
-margin:auto;
-text-align:center;
-background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
+
+.wa-btn {
+  display: inline-block;
+  background: #25D366;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-top: 12px;
 }
-footer{
-background:#0A2A66;
-color:white;
-text-align:center;
-padding:20px;
+
+.contact-box {
+  max-width: 700px;
+  margin: auto;
+  text-align: center;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
-.whatsapp-float{
-position:fixed;
-right:20px;
-bottom:20px;
-background:#25D366;
-color:white;
-padding:15px 20px;
-border-radius:50px;
-text-decoration:none;
-font-weight:bold;
+
+footer {
+  background: #0A2A66;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.whatsapp-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: #25D366;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+@media (max-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 940px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 
 <script>
 function openProduct(id){
-document.querySelectorAll('.details').forEach(x=>{
- x.classList.remove('active');
-});
-document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.details').forEach(x => {
+    x.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
 }
 </script>
 </head>
@@ -138,9 +195,9 @@ document.getElementById(id).classList.add('active');
 <img src="logo.png" alt="Vedisha Logo">
 
 <nav>
-<a href="#about">About</a>
-<a href="#products">Products</a>
-<a href="#contact">Contact Us</a>
+  <a href="#about">About</a>
+  <a href="#products">Products</a>
+  <a href="#contact">Contact Us</a>
 </nav>
 </header>
 
@@ -177,17 +234,60 @@ Vedisha was founded with a simple belief that quality and trust should always co
 <div class="card-title">Natural Dates</div>
 </div>
 
-<div class="card" onclick="openProduct('pistachios')"><img src="pistachios.jpg" alt="Premium Pistachios"><div class="card-title">Premium Pistachios</div></div>
-<div class="card" onclick="openProduct('walnuts')"><img src="walnuts.jpg" alt="Walnut Kernels"><div class="card-title">Walnut Kernels</div></div>
-<div class="card" onclick="openProduct('raisins')"><img src="raisins.jpg" alt="Raisins"><div class="card-title">Raisins</div></div>
-<div class="card" onclick="openProduct('goldenraisins')"><img src="goldenraisins.jpg" alt="Golden Raisins"><div class="card-title">Golden Raisins</div></div>
-<div class="card" onclick="openProduct('blackraisins')"><img src="blackraisins.jpg" alt="Black Raisins"><div class="card-title">Black Raisins</div></div>
-<div class="card" onclick="openProduct('driedfigs')"><img src="driedfigs.jpg" alt="Dried Figs"><div class="card-title">Dried Figs</div></div>
-<div class="card" onclick="openProduct('driedcoconut')"><img src="driedcoconut.jpg" alt="Dried Coconut"><div class="card-title">Dried Coconut</div></div>
-<div class="card" onclick="openProduct('driedmango')"><img src="driedmango.jpg" alt="Dried Mango"><div class="card-title">Dried Mango</div></div>
-<div class="card" onclick="openProduct('pumpkinseeds')"><img src="pumpkinseeds.jpg" alt="Pumpkin Seeds"><div class="card-title">Pumpkin Seeds</div></div>
-<div class="card" onclick="openProduct('sunflowerseeds')"><img src="sunflowerseeds.jpg" alt="Sunflower Seeds"><div class="card-title">Sunflower Seeds</div></div>
-<div class="card" onclick="openProduct('chiaseeds')"><img src="chiaseeds.jpg" alt="Chia Seeds"><div class="card-title">Chia Seeds</div></div>
+<div class="card" onclick="openProduct('pistachios')">
+<img src="pistachios.jpg" alt="Premium Pistachios">
+<div class="card-title">Premium Pistachios</div>
+</div>
+
+<div class="card" onclick="openProduct('walnuts')">
+<img src="walnuts.jpg" alt="Walnut Kernels">
+<div class="card-title">Walnut Kernels</div>
+</div>
+
+<div class="card" onclick="openProduct('raisins')">
+<img src="raisins.jpg" alt="Raisins">
+<div class="card-title">Raisins</div>
+</div>
+
+<div class="card" onclick="openProduct('goldenraisins')">
+<img src="goldenraisins.jpg" alt="Golden Raisins">
+<div class="card-title">Golden Raisins</div>
+</div>
+
+<div class="card" onclick="openProduct('blackraisins')">
+<img src="blackraisins.jpg" alt="Black Raisins">
+<div class="card-title">Black Raisins</div>
+</div>
+
+<div class="card" onclick="openProduct('driedfigs')">
+<img src="driedfigs.jpg" alt="Dried Figs">
+<div class="card-title">Dried Figs</div>
+</div>
+
+<div class="card" onclick="openProduct('driedcoconut')">
+<img src="driedcoconut.jpg" alt="Dried Coconut">
+<div class="card-title">Dried Coconut</div>
+</div>
+
+<div class="card" onclick="openProduct('driedmango')">
+<img src="driedmango.jpg" alt="Dried Mango">
+<div class="card-title">Dried Mango</div>
+</div>
+
+<div class="card" onclick="openProduct('pumpkinseeds')">
+<img src="pumpkinseeds.jpg" alt="Pumpkin Seeds">
+<div class="card-title">Pumpkin Seeds</div>
+</div>
+
+<div class="card" onclick="openProduct('sunflowerseeds')">
+<img src="sunflowerseeds.jpg" alt="Sunflower Seeds">
+<div class="card-title">Sunflower Seeds</div>
+</div>
+
+<div class="card" onclick="openProduct('chiaseeds')">
+<img src="chiaseeds.jpg" alt="Chia Seeds">
+<div class="card-title">Chia Seeds</div>
+</div>
 
 </div>
 
