@@ -33,18 +33,27 @@ header img {
 
 nav {
   margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 nav a {
   text-decoration: none;
   color: #0A2A66;
-  margin: 0 20px;
   font-weight: 700;
   font-size: 18px;
   background: #FFEB3B;
   padding: 8px 16px;
   display: inline-block;
   border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
 }
 
 .section {
@@ -158,6 +167,13 @@ th, td {
   margin-top: 12px;
   font-size: 18px;
   font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.wa-btn:hover {
+  background: #20ba5e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
 }
 
 .contact-box {
@@ -193,29 +209,215 @@ footer {
   text-decoration: none;
   font-weight: bold;
   font-size: 18px;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.whatsapp-float:hover {
+  background: #20ba5e;
+  transform: scale(1.1);
 }
 
 @media (max-width: 1180px) {
   .grid {
     grid-template-columns: repeat(4, minmax(180px, 1fr));
   }
+  
+  h2 {
+    font-size: 32px;
+  }
+  
+  nav a {
+    font-size: 16px;
+    padding: 6px 14px;
+  }
 }
 
 @media (max-width: 940px) {
   .grid {
-    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+  
+  h2 {
+    font-size: 28px;
+    margin: 0 0 30px;
+  }
+  
+  nav a {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+  
+  .section {
+    padding: 30px 15px;
   }
 }
 
 @media (max-width: 700px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 15px 12px;
+  }
+  
+  header img {
+    width: 90%;
+  }
+  
+  nav {
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  nav a {
+    font-size: 14px;
+    padding: 6px 10px;
+    margin: 4px 2px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin: 0 0 25px;
+  }
+  
+  h3 {
+    font-size: 20px;
+  }
+  
+  .section {
+    padding: 25px 12px;
+  }
+  
+  .about p {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .card-title {
+    font-size: 16px;
+    padding: 12px 8px;
+  }
+  
+  table {
+    font-size: 16px;
+  }
+  
+  th, td {
+    padding: 8px;
+  }
+  
+  .contact-box {
+    padding: 20px 15px;
+  }
+  
+  .contact-box p {
+    font-size: 18px;
+  }
+  
+  .wa-btn {
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+  
+  footer {
+    font-size: 18px;
+    padding: 15px;
+  }
+  
+  .whatsapp-float {
+    padding: 12px 16px;
+    font-size: 16px;
+    right: 15px;
+    bottom: 15px;
   }
 }
 
 @media (max-width: 480px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: 12px 8px;
+  }
+  
+  header {
+    padding: 15px;
+  }
+  
+  header img {
+    width: 95%;
+  }
+  
+  nav {
+    gap: 6px;
+    margin-top: 10px;
+  }
+  
+  nav a {
+    font-size: 13px;
+    padding: 5px 8px;
+    margin: 3px 2px;
+  }
+  
+  h2 {
+    font-size: 22px;
+    margin: 0 0 20px;
+  }
+  
+  h3 {
+    font-size: 18px;
+  }
+  
+  .section {
+    padding: 20px 10px;
+  }
+  
+  .about p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  .card-title {
+    font-size: 14px;
+    padding: 10px 6px;
+  }
+  
+  .details p {
+    font-size: 16px;
+  }
+  
+  table {
+    font-size: 14px;
+  }
+  
+  th, td {
+    padding: 6px;
+  }
+  
+  .contact-box {
+    padding: 15px 12px;
+    max-width: 100%;
+  }
+  
+  .contact-box p {
+    font-size: 16px;
+    margin: 8px 0;
+  }
+  
+  .wa-btn {
+    font-size: 14px;
+    padding: 7px 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  footer {
+    font-size: 14px;
+    padding: 12px 8px;
+  }
+  
+  .whatsapp-float {
+    padding: 10px 14px;
+    font-size: 14px;
+    right: 10px;
+    bottom: 10px;
   }
 }
 </style>
