@@ -851,7 +851,9 @@ footer {
 
 <script>
 let cart = JSON.parse(localStorage.getItem('vedishaCart')) || [];
+// TODO: replace with real UPI ID
 const UPI_ID = 'yourupiid@bank';
+// TODO: set to the bank-provided QR image URL; if set, it is shown instead of the generated temporary QR
 const UPI_QR_IMAGE_URL = '';
 const WA_BUSINESS_NUMBER = '919890798935';
 
@@ -867,6 +869,7 @@ function updateCartCount() {
   }
 }
 
+// Add the product/grade of the table row where the button was clicked
 function addRowToCart(btn) {
   const row = btn.closest('tr');
   const productName = row.dataset.product;
@@ -942,19 +945,19 @@ function openCart() {
   openModal('cartModal');
 }
 
-function buildOrderSummary() {
-  return cart.map(item => {
-    const itemTotal = parseFloat(item.price) * item.quantity;
-    return `${item.productName} (${item.grade}): ${item.quantity}kg @ ₹${item.price}/kg = ₹${itemTotal.toFixed(2)}`;
-  }).join('\n');
+function getCartTotal() {
+  return cart.reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0);
 }
 
 function buildUpiUrl(total) {
   return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent('Vedisha')}&am=${encodeURIComponent(total.toFixed(2))}&cu=INR&tn=${encodeURIComponent('Vedisha order')}`;
 }
 
-function getCartTotal() {
-  return cart.reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0);
+function buildOrderSummary() {
+  return cart.map(item => {
+    const itemTotal = parseFloat(item.price) * item.quantity;
+    return `${item.productName} (${item.grade}): ${item.quantity}kg @ ₹${item.price}/kg = ₹${itemTotal.toFixed(2)}`;
+  }).join('\n');
 }
 
 function proceedToCheckout() {
@@ -965,14 +968,11 @@ function proceedToCheckout() {
 
   const total = getCartTotal();
   const upiUrl = buildUpiUrl(total);
-  const qrUrl = UPI_QR_IMAGE_URL || `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
 
   document.getElementById('payAmount').textContent = `Amount due: ₹${total.toFixed(2)}`;
-  document.getElementById('upiQr').src = qrUrl;
+  document.getElementById('upiQr').src = UPI_QR_IMAGE_URL ||
+    `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
   document.getElementById('upiPayLink').href = upiUrl;
-  document.getElementById('upiPayLink').target = '_blank';
-  document.getElementById('payName').value = '';
-  document.getElementById('payMobile').value = '';
 
   closeModal('cartModal');
   openModal('paymentModal');
@@ -981,7 +981,6 @@ function proceedToCheckout() {
 function getCustomerMobile() {
   const name = document.getElementById('payName').value.trim();
   const mobile = document.getElementById('payMobile').value.replace(/[\s-]/g, '');
-
   if (!name) {
     alert('Please enter your name.');
     return null;
@@ -994,8 +993,7 @@ function getCustomerMobile() {
 }
 
 function buildOrderMessage(customer, total) {
-  let msg = `Hi ${customer.name},\n\nVedisha order summary:\n\n${buildOrderSummary()}\n\nTotal: ₹${total.toFixed(2)}\n\nPay via UPI: ${buildUpiUrl(total)}\n\nAfter paying, please send the payment screenshot here.`;
-  return msg;
+  return `Hi ${customer.name},\n\nVedisha order summary:\n\n${buildOrderSummary()}\n\nTotal: ₹${total.toFixed(2)}\n\nPay via UPI: ${buildUpiUrl(total)}\n\nAfter paying, please send the payment screenshot here.`;
 }
 
 // NOTE: A static site cannot send WhatsApp messages automatically. Fully automatic
@@ -1030,8 +1028,11 @@ function completeOrder() {
   alert('Thank you! Please send the payment screenshot on WhatsApp (+91 98907 98935) so we can confirm your order.');
 }
 
+// Pricing details: hidden by default, shown inline on the same page when a product is clicked.
+// Clicking the same product again (or the X button) hides it.
 function openProduct(id){
   const target = document.getElementById(id);
+  if (!target) return;
   const wasActive = target.classList.contains('active');
 
   document.querySelectorAll('.details').forEach(x => {
@@ -1087,37 +1088,28 @@ function submitInquiryForm(event) {
   formData.append('entry.1234567893', product);
   formData.append('entry.1234567894', message);
   
+  const finish = () => {
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('inquiryForm').reset();
+    document.getElementById('inquirySuccess').style.display = 'block';
+    setTimeout(() => {
+      closeModal('inquiryModal');
+      document.getElementById('inquirySuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Inquiry';
+  };
+
   fetch('https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse', {
     method: 'POST',
     body: formData,
     mode: 'no-cors'
-  }).then(() => {
-    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
-    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
-    
-    document.getElementById('inquiryForm').reset();
-    document.getElementById('inquirySuccess').style.display = 'block';
-    setTimeout(() => {
-      closeModal('inquiryModal');
-      document.getElementById('inquirySuccess').style.display = 'none';
-    }, 3000);
-    
-    btn.disabled = false;
-    btn.textContent = 'Submit Inquiry';
-  }).catch(err => {
+  }).then(finish).catch(err => {
     console.log('Form submitted');
-    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to inquire about your products.%0A%0AName: ${name}%0AEmail: ${email}%0APhone: ${phone}%0AProduct Interest: ${product}%0AMessage: ${message}`;
-    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
-    
-    document.getElementById('inquiryForm').reset();
-    document.getElementById('inquirySuccess').style.display = 'block';
-    setTimeout(() => {
-      closeModal('inquiryModal');
-      document.getElementById('inquirySuccess').style.display = 'none';
-    }, 3000);
-    
-    btn.disabled = false;
-    btn.textContent = 'Submit Inquiry';
+    finish();
   });
 }
 
@@ -1140,37 +1132,28 @@ function submitFeedbackForm(event) {
   formData.append('entry.1234567898', rating);
   formData.append('entry.1234567899', feedback);
   
+  const finish = () => {
+    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
+    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
+    
+    document.getElementById('feedbackForm').reset();
+    document.getElementById('feedbackSuccess').style.display = 'block';
+    setTimeout(() => {
+      closeModal('feedbackModal');
+      document.getElementById('feedbackSuccess').style.display = 'none';
+    }, 3000);
+    
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+  };
+
   fetch('https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse', {
     method: 'POST',
     body: formData,
     mode: 'no-cors'
-  }).then(() => {
-    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
-    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
-    
-    document.getElementById('feedbackForm').reset();
-    document.getElementById('feedbackSuccess').style.display = 'block';
-    setTimeout(() => {
-      closeModal('feedbackModal');
-      document.getElementById('feedbackSuccess').style.display = 'none';
-    }, 3000);
-    
-    btn.disabled = false;
-    btn.textContent = 'Submit Feedback';
-  }).catch(err => {
+  }).then(finish).catch(err => {
     console.log('Form submitted');
-    const whatsappMessage = `Hi Vedisha,%0A%0AI would like to share my feedback.%0A%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0ARating: ${rating}%0AFeedback: ${feedback}`;
-    window.open(`https://wa.me/919890798935?text=${whatsappMessage}`, '_blank');
-    
-    document.getElementById('feedbackForm').reset();
-    document.getElementById('feedbackSuccess').style.display = 'block';
-    setTimeout(() => {
-      closeModal('feedbackModal');
-      document.getElementById('feedbackSuccess').style.display = 'none';
-    }, 3000);
-    
-    btn.disabled = false;
-    btn.textContent = 'Submit Feedback';
+    finish();
   });
 }
 
@@ -1286,6 +1269,175 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 </div>
 
 </div>
+
+<div id="makhana" class="details">
+<span class="close-details" onclick="closeProduct('makhana')">&times;</span>
+<h3>Premium Makhana</h3>
+<table>
+<tr><th>Grade</th><th>Size</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Premium Makhana" data-grade="A+" data-price="1650"><td>A+</td><td>Extra Large</td><td>₹1650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="A" data-price="1400"><td>A</td><td>Large</td><td>₹1400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="B" data-price="1100"><td>B</td><td>Medium</td><td>₹1100</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Premium Makhana" data-grade="C" data-price="850"><td>C</td><td>Small</td><td>₹850</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+</div>
+
+<div id="almonds" class="details">
+<span class="close-details" onclick="closeProduct('almonds')">&times;</span>
+<h3>California Almonds</h3>
+<p>Premium export quality almonds available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="California Almonds" data-grade="Premium" data-price="800"><td>Premium</td><td>₹800</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20California%20Almonds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="cashews" class="details">
+<span class="close-details" onclick="closeProduct('cashews')">&times;</span>
+<h3>Handpicked Cashews</h3>
+<p>Available in W180, W240 and W320 grades.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Handpicked Cashews" data-grade="W180" data-price="1400"><td>W180</td><td>₹1400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Handpicked Cashews" data-grade="W240" data-price="1350"><td>W240</td><td>₹1350</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+<tr data-product="Handpicked Cashews" data-grade="W320" data-price="1300"><td>W320</td><td>₹1300</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Handpicked%20Cashews" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="dates" class="details">
+<span class="close-details" onclick="closeProduct('dates')">&times;</span>
+<h3>Natural Dates</h3>
+<p>Premium quality dates suitable for retail and wholesale supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Natural Dates" data-grade="Premium" data-price="900"><td>Premium</td><td>₹900</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Natural%20Dates" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="pistachios" class="details">
+<span class="close-details" onclick="closeProduct('pistachios')">&times;</span>
+<h3>Premium Pistachios</h3>
+<p>High-quality pistachios available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Premium Pistachios" data-grade="Premium" data-price="1250"><td>Premium</td><td>₹1250</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Premium%20Pistachios" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="walnuts" class="details">
+<span class="close-details" onclick="closeProduct('walnuts')">&times;</span>
+<h3>Walnut Kernels</h3>
+<p>Premium walnut kernels suitable for all uses.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Walnut Kernels" data-grade="Premium" data-price="650"><td>Premium</td><td>₹650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Walnut%20Kernels" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="raisins" class="details">
+<span class="close-details" onclick="closeProduct('raisins')">&times;</span>
+<h3>Mix Raisins</h3>
+<p>Premium quality mix raisins available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Mix Raisins" data-grade="Premium" data-price="450"><td>Premium</td><td>₹450</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Mix%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="goldenraisins" class="details">
+<span class="close-details" onclick="closeProduct('goldenraisins')">&times;</span>
+<h3>Golden Raisins</h3>
+<p>Premium quality golden raisins with superior taste.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Golden Raisins" data-grade="Premium" data-price="700"><td>Premium</td><td>₹700</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Golden%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="blackraisins" class="details">
+<span class="close-details" onclick="closeProduct('blackraisins')">&times;</span>
+<h3>Black Raisins</h3>
+<p>Premium quality black raisins available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Black Raisins" data-grade="Premium" data-price="600"><td>Premium</td><td>₹600</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Black%20Raisins" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="driedfigs" class="details">
+<span class="close-details" onclick="closeProduct('driedfigs')">&times;</span>
+<h3>Dried Figs</h3>
+<p>Premium quality dried figs available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Figs" data-grade="Premium" data-price="1200"><td>Premium</td><td>₹1200</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Figs" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="driedcoconut" class="details">
+<span class="close-details" onclick="closeProduct('driedcoconut')">&times;</span>
+<h3>Dried Coconut</h3>
+<p>Premium quality dried coconut available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Coconut" data-grade="Premium" data-price="350"><td>Premium</td><td>₹350</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Coconut" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="driedmango" class="details">
+<span class="close-details" onclick="closeProduct('driedmango')">&times;</span>
+<h3>Dried Mango</h3>
+<p>Premium quality dried mango available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Dried Mango" data-grade="Premium" data-price="550"><td>Premium</td><td>₹550</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Dried%20Mango" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="pumpkinseeds" class="details">
+<span class="close-details" onclick="closeProduct('pumpkinseeds')">&times;</span>
+<h3>Pumpkin Seeds</h3>
+<p>Nutritious pumpkin seeds available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Pumpkin Seeds" data-grade="Premium" data-price="500"><td>Premium</td><td>₹500</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Pumpkin%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="sunflowerseeds" class="details">
+<span class="close-details" onclick="closeProduct('sunflowerseeds')">&times;</span>
+<h3>Sunflower Seeds</h3>
+<p>High-quality sunflower seeds available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Sunflower Seeds" data-grade="Premium" data-price="400"><td>Premium</td><td>₹400</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Sunflower%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
+<div id="chiaseeds" class="details">
+<span class="close-details" onclick="closeProduct('chiaseeds')">&times;</span>
+<h3>Chia Seeds</h3>
+<p>Premium quality chia seeds available for retail and bulk supply.</p>
+<table>
+<tr><th>Grade</th><th>Price/kg</th><th>Cart</th></tr>
+<tr data-product="Chia Seeds" data-grade="Premium" data-price="650"><td>Premium</td><td>₹650</td><td class="cart-cell"><div class="cart-cell-inner"><input type="number" class="quantity-input row-qty" value="1" min="1" aria-label="Quantity in kg"><button class="add-to-cart-btn" onclick="addRowToCart(this)">Add to Cart</button></div></td></tr>
+</table>
+<a href="https://wa.me/919890798935?text=Interested%20in%20Chia%20Seeds" class="wa-btn" target="_blank" rel="noopener noreferrer">WhatsApp Enquiry</a>
+</div>
+
 </section>
 
 <!-- Cart Modal -->
@@ -1398,11 +1550,11 @@ document.addEventListener('DOMContentLoaded', updateCartCount);
 <section id="contact" class="section">
 <h2>Get In Touch</h2>
 <div class="contact-box">
-  <p><strong>Vedisha - Premium Dry Fruits & Healthy Snacks</strong></p>
+  <p><strong>Vedisha - Premium Dry Fruits &amp; Healthy Snacks</strong></p>
   <p>📞 Phone: +91-98907-98935</p>
-  <p>✉️ Email: contact@vedisha.com</p>
+  <p>📧 Email: contact@vedisha.com</p>
   <p>Connect with us on WhatsApp for quick inquiries and bulk orders!</p>
-  <a href="https://wa.me/919890798935" class="wa-btn" target="_blank" rel="noopener noreferrer">📲 WhatsApp Us</a>
+  <a href="https://wa.me/919890798935" class="wa-btn" target="_blank" rel="noopener noreferrer">💬 WhatsApp Us</a>
 </div>
 </section>
 
